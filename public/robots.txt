@@ -1,0 +1,6 @@
+# Greeley Solar Reset — robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://greeleysolarreset.com/sitemap-index.xml

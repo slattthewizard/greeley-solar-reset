@@ -1,0 +1,123 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const collectionPosts = await getCollection('blog');
+const posts = collectionPosts
+  .map(post => ({
+    slug: post.slug,
+    title: post.data.title,
+    desc: post.data.metaDescription,
+    date: post.data.publishedDate,
+    tag: post.data.tag,
+  }))
+  .sort((a, b) => b.date.localeCompare(a.date));
+---
+
+<Layout
+  title="Solar & Reroofing Blog | Greeley Solar Reset"
+  description="Practical advice on solar detach &amp; reset, hail damage, insurance claims, and panel removal for homeowners in Greeley and Northern Colorado."
+  canonical="https://greeleysolarreset.com/blog/"
+>
+<style>
+  .blog-hero {
+    background: linear-gradient(150deg, #101826 0%, #16202E 55%, #1B2A3C 100%);
+    padding: 76px 24px 64px;
+    text-align: center;
+    color: #fff;
+  }
+  .blog-hero .kicker-dark { margin-bottom: 16px; }
+  .blog-hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2rem, 4.2vw, 3rem);
+    font-weight: 800;
+    margin: 0 0 14px;
+    letter-spacing: -1px;
+    color: #fff;
+  }
+  .blog-hero p {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.7);
+    margin: 0 auto;
+    max-width: 540px;
+    line-height: 1.7;
+  }
+  .blog-grid {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 24px 88px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px 28px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 3px rgba(22,32,46,0.06), 0 10px 40px rgba(22,32,46,0.08);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .blog-card:hover {
+    box-shadow: 0 2px 6px rgba(22,32,46,0.08), 0 20px 60px rgba(22,32,46,0.15);
+    transform: translateY(-3px);
+  }
+  .blog-card:focus-visible { outline: 2px solid #E8A020; outline-offset: 3px; }
+  .blog-card .tag {
+    display: inline-block; width: fit-content;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase;
+    color: #8F5D0C; background: #FBF2DF; border-radius: 50px;
+    padding: 4px 14px; margin-bottom: 14px;
+  }
+  .blog-card h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #16202E;
+    margin: 0 0 10px;
+    line-height: 1.35;
+  }
+  .blog-card p {
+    font-size: 0.9rem;
+    color: #4A5560;
+    line-height: 1.7;
+    margin: 0 0 20px;
+    flex: 1;
+  }
+  .blog-card .read-more {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700; color: #8F5D0C;
+  }
+</style>
+
+<Fragment slot="head">
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Solar & Reroofing Help for Greeley and Northern Colorado",
+    "description": "Practical advice on solar detach & reset, hail damage, insurance claims, and panel removal for Greeley and Northern Colorado homeowners.",
+    "url": "https://greeleysolarreset.com/blog/"
+  })} />
+</Fragment>
+
+<section class="blog-hero">
+  <span class="kicker-dark">The Blog</span>
+  <h1>Solar &amp; Reroofing Help for Greeley and Northern Colorado</h1>
+  <p>Practical advice on solar detach &amp; reset, hail damage, insurance claims, and panel removal from the Greeley Solar Reset crew.</p>
+</section>
+
+<div class="blog-grid">
+  {posts.map(post => (
+    <a href={`/blog/${post.slug}/`} class="blog-card">
+      {post.tag && <span class="tag">{post.tag}</span>}
+      <h2>{post.title}</h2>
+      <p>{post.desc}</p>
+      <span class="read-more">Read Article →</span>
+    </a>
+  ))}
+</div>
+</Layout>

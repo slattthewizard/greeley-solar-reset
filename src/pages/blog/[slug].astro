@@ -1,0 +1,218 @@
+---
+import fs from 'node:fs';
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const canonical = post.data.canonical ?? `https://greeleysolarreset.com/blog/${post.slug}/`;
+const heroImg = fs.existsSync(`public/images/blog/${post.slug}.webp`)
+  ? `/images/blog/${post.slug}.webp`
+  : null;
+const ogImage = post.data.ogImage
+  ?? (heroImg ? `https://greeleysolarreset.com${heroImg}` : 'https://greeleysolarreset.com/images/og-image.webp');
+const title = post.data.metaTitle ?? post.data.title;
+const navTitle = post.data.navTitle ?? post.data.title;
+const faq = post.data.faq ?? [];
+
+const breadcrumbSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://greeleysolarreset.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://greeleysolarreset.com/blog/" },
+    { "@type": "ListItem", "position": 3, "name": post.data.title, "item": canonical }
+  ]
+});
+
+const articleSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": post.data.title,
+  "description": post.data.metaDescription,
+  "image": ogImage,
+  "url": canonical,
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonical },
+  "datePublished": post.data.publishedDate,
+  "dateModified": post.data.updatedDate ?? post.data.publishedDate,
+  "author": { "@type": "Organization", "name": "Greeley Solar Reset", "url": "https://greeleysolarreset.com/about/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Greeley Solar Reset",
+    "url": "https://greeleysolarreset.com",
+    "logo": { "@type": "ImageObject", "url": "https://greeleysolarreset.com/images/og-image.webp" }
+  }
+});
+
+const dateDisplay = new Date(post.data.publishedDate + 'T12:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const faqSchema = faq.length > 0 ? JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faq.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": { "@type": "Answer", "text": item.answer }
+  }))
+}) : null;
+---
+
+<Layout
+  title={title}
+  description={post.data.metaDescription}
+  canonical={canonical}
+  ogTitle={title}
+  ogDescription={post.data.metaDescription}
+  ogImage={ogImage}
+>
+
+<Fragment slot="head">
+  <script type="application/ld+json" set:html={articleSchema} />
+  <script type="application/ld+json" set:html={breadcrumbSchema} />
+  {faqSchema && <script type="application/ld+json" set:html={faqSchema} />}
+</Fragment>
+
+<style is:global>
+  .article-content h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: clamp(22px,3vw,30px); color: #16202E; letter-spacing: -0.5px; margin-top: 48px; margin-bottom: 16px; line-height: 1.2; }
+  .article-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 20px; color: #16202E; margin-top: 28px; margin-bottom: 8px; }
+  .article-content p { font-size: 16px; line-height: 1.75; color: #4A5560; margin-bottom: 16px; }
+  .article-content a { color: #8F5D0C; font-weight: 600; text-decoration: none; }
+  .article-content a:hover { text-decoration: underline; }
+  .article-content ul, .article-content ol { padding-left: 20px; margin-bottom: 20px; }
+  .article-content li { font-size: 16px; line-height: 1.75; color: #4A5560; margin-bottom: 8px; }
+  .article-content strong { color: #16202E; }
+  .article-content em { font-style: italic; }
+  .article-content hr { border: none; border-top: 1px solid #E5E8EE; margin: 32px 0; }
+  .article-content blockquote { border-left: 4px solid #E8A020; margin: 24px 0; padding: 12px 20px; background: #FBF2DF; border-radius: 0 12px 12px 0; font-style: italic; color: #4A5560; }
+  .article-content table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 15px; }
+  .article-content th { background: #16202E; color: #fff; padding: 12px 16px; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .article-content td { padding: 12px 16px; border-bottom: 1px solid #E5E8EE; color: #4A5560; }
+  .article-content tr:last-child td { border-bottom: none; }
+  .article-content tr:nth-child(even) { background: #F1F3F6; }
+
+  .article-content > ul:first-of-type {
+    background: #F1F3F6; border: 1px solid #E5E8EE; border-radius: 14px;
+    padding: 20px 24px 20px 40px; margin-bottom: 32px; list-style: none;
+  }
+  .article-content > ul:first-of-type li { padding-left: 16px; position: relative; font-size: 15px; margin-bottom: 8px; color: #4A5560; }
+  .article-content > ul:first-of-type li::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; background: #E8A020; border-radius: 50%; }
+  .article-content > ul:first-of-type li a { color: #8F5D0C; }
+
+  .article-content p:has(> strong:only-child) {
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; color: #16202E;
+    margin-bottom: 6px; margin-top: 20px;
+  }
+
+  .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 64px; align-items: start; }
+  @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  .btn-primary-blog { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #16202E; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; padding: 14px 28px; border: none; border-radius: 50px; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+  .btn-primary-blog:hover { background: #24374B; transform: translateY(-1px); }
+  .btn-copper-blog { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #E8A020; color: #16202E; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; padding: 14px 28px; border: none; border-radius: 50px; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; box-shadow: 0 4px 20px rgba(232,160,32,0.35); }
+  .btn-copper-blog:hover { background: #C9861A; transform: translateY(-1px); }
+  .blog-ghost-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.06); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px; padding: 13px 28px; border: 1.5px solid rgba(255,255,255,0.35); border-radius: 50px; cursor: pointer; text-decoration: none; transition: background 0.2s, border-color 0.2s; }
+  .blog-ghost-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.6); }
+</style>
+
+<!-- BREADCRUMB -->
+<nav aria-label="Breadcrumb" style="max-width:1180px;margin:0 auto;padding:14px 24px;">
+  <ol style="list-style:none;padding:0;margin:0;display:flex;gap:8px;font-size:13px;color:#7A8490;">
+    <li><a href="/" style="color:#8F5D0C;text-decoration:none;font-weight:600;">Home</a></li>
+    <li>/</li>
+    <li><a href="/blog/" style="color:#8F5D0C;text-decoration:none;font-weight:600;">Blog</a></li>
+    <li>/</li>
+    <li style="color:#16202E;">{post.data.navTitle ?? post.data.title}</li>
+  </ol>
+</nav>
+
+<!-- HERO -->
+<section style="background:linear-gradient(150deg, #101826 0%, #16202E 55%, #1B2A3C 100%);padding:64px 0;position:relative;overflow:hidden;">
+  {heroImg && (
+    <img src={heroImg} alt="" width="1600" height="700" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" loading="eager" fetchpriority="high" aria-hidden="true" />
+  )}
+  {heroImg && (
+    <div style="position:absolute;inset:0;background:linear-gradient(100deg, rgba(16,24,38,0.94) 0%, rgba(16,24,38,0.78) 45%, rgba(16,24,38,0.5) 100%);"></div>
+  )}
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;position:relative;">
+    {post.data.tag && (
+      <span class="kicker-dark">{post.data.tag}</span>
+    )}
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#fff;line-height:1.12;letter-spacing:-1px;font-size:clamp(28px,4vw,46px);margin:0 0 10px;">{post.data.title}</h1>
+    <p style="font-size:13px;color:rgba(255,255,255,0.55);margin:0 0 14px;">Published {dateDisplay} · Greeley Solar Reset</p>
+    {post.data.subtitle && (
+      <p style="font-size:18px;line-height:1.7;color:rgba(255,255,255,0.72);max-width:600px;margin-bottom:28px;">{post.data.subtitle}</p>
+    )}
+    <div style="display:flex;flex-wrap:wrap;gap:16px;">
+      <a href="/#contact" class="btn-copper-blog">Get a Free Estimate</a>
+      <a href="tel:+19702863417" class="blog-ghost-btn">Call (970) 286-3417</a>
+    </div>
+  </div>
+</section>
+
+<!-- ARTICLE CONTENT -->
+<section style="padding:72px 0;background:#fff;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;">
+    <div class="content-grid">
+
+      <div class="article-content">
+        <Content />
+      </div>
+
+      <aside>
+        <div style="background:#F1F3F6;border-radius:20px;padding:28px;margin-bottom:24px;">
+          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:#16202E;margin:0 0 12px;">Reroofing? Hail Damage?</h3>
+          <p style="font-size:14px;line-height:1.7;color:#4A5560;margin-bottom:20px;">A licensed solar technician will assess your array and give you a clear written estimate before any work starts.</p>
+          <a href="/#contact" class="btn-copper-blog" style="width:100%;margin-bottom:12px;">Request Estimate</a>
+          <a href="tel:+19702863417" class="btn-primary-blog" style="width:100%;">Call (970) 286-3417</a>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E5E8EE;border-radius:20px;padding:28px;">
+          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#16202E;margin:0 0 16px;">Our Services</h3>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
+            <li><a href="/solar-detach-reset-greeley/" style="font-size:14px;color:#8F5D0C;text-decoration:none;font-weight:600;">&#8594; Solar Detach & Reset</a></li>
+            <li><a href="/solar-panel-removal-greeley/" style="font-size:14px;color:#8F5D0C;text-decoration:none;font-weight:600;">&#8594; Solar Panel Removal</a></li>
+            <li><a href="/solar-hail-damage-greeley/" style="font-size:14px;color:#8F5D0C;text-decoration:none;font-weight:600;">&#8594; Hail Damage Inspection & Repair</a></li>
+            <li><a href="/emergency-solar-service-greeley/" style="font-size:14px;color:#8F5D0C;text-decoration:none;font-weight:600;">&#8594; Storm Damage Response</a></li>
+            <li><a href="/blog/" style="font-size:14px;color:#8F5D0C;text-decoration:none;font-weight:600;">&#8594; All Articles</a></li>
+          </ul>
+        </div>
+
+        <div style="background:#fff;border:1px solid #E5E8EE;border-radius:20px;padding:28px;margin-top:24px;">
+          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#16202E;margin:0 0 12px;">Service Areas</h3>
+          <p style="font-size:14px;line-height:1.7;color:#4A5560;">Solar detach &amp; reset service throughout Greeley and Northern Colorado:</p>
+          <ul style="padding-left:18px;margin-top:8px;">
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Greeley, CO</li>
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Evans, CO</li>
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Windsor, CO</li>
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Johnstown, CO</li>
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Eaton, CO</li>
+            <li style="font-size:14px;color:#4A5560;margin-bottom:4px;">Firestone &amp; Fort Lupton, CO</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section style="background:linear-gradient(150deg, #101826 0%, #16202E 55%, #24374B 100%);padding:80px 24px;text-align:center;">
+  <span class="kicker-dark">Get In Touch</span>
+  <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:-0.5px;color:#fff;margin:0 0 16px;">Reroofing with Solar in Northern Colorado?</h2>
+  <p style="font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;">Get a free, no-obligation estimate from a licensed solar detach &amp; reset crew. Storm-damage calls answered around the clock.</p>
+  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+    <a href="/#contact" class="btn-copper-blog">Get Free Estimate</a>
+    <a href="tel:+19702863417" class="blog-ghost-btn">Call (970) 286-3417</a>
+  </div>
+</section>
+
+</Layout>

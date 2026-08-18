@@ -23,7 +23,8 @@ const {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/logo-mark.png">
   <title>{title}</title>
   <meta name="google-site-verification" content="kTSRtazkkHfvVT4s5BWrhaB1ZY4gz9w1dyQU4sscFXM" />
   <meta name="description" content={description} />
@@ -274,16 +275,7 @@ const {
   <div style="max-width:1180px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:76px;">
     <!-- Logo -->
     <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;" aria-label="Greeley Solar Reset home">
-      <svg width="40" height="40" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <rect x="1" y="1" width="34" height="34" rx="10" fill="#16202E"/>
-        <circle cx="18" cy="18" r="7" fill="#E8A020"/>
-        <g stroke="#E8A020" stroke-width="2.2" stroke-linecap="round">
-          <line x1="18" y1="4.5" x2="18" y2="8"/><line x1="18" y1="28" x2="18" y2="31.5"/>
-          <line x1="4.5" y1="18" x2="8" y2="18"/><line x1="28" y1="18" x2="31.5" y2="18"/>
-          <line x1="8.5" y1="8.5" x2="10.9" y2="10.9"/><line x1="25.1" y1="25.1" x2="27.5" y2="27.5"/>
-          <line x1="8.5" y1="27.5" x2="10.9" y2="25.1"/><line x1="25.1" y1="10.9" x2="27.5" y2="8.5"/>
-        </g>
-      </svg>
+      <img src="/logo-mark.png" alt="" width="44" height="44" style="display:block;" aria-hidden="true" />
       <span style="display:flex;flex-direction:column;line-height:1.05;">
         <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;color:#16202E;letter-spacing:-0.3px;">Greeley Solar Reset</span>
         <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:#8F5D0C;">Solar Detach &amp; Reset for Roof Replacement</span>
@@ -549,7 +541,7 @@ const {
 <!-- GA4 (set GA_ID to enable) + lightweight event tracking -->
 <script>
 (function () {
-  var GA_ID = '';
+  var GA_ID = 'G-XBFQG2N29L';
   if (GA_ID) {
     function loadGA() {
       var s = document.createElement('script');

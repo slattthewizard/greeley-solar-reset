@@ -93,7 +93,9 @@ const faqSchema = faq.length > 0 ? JSON.stringify({
   .article-content em { font-style: italic; }
   .article-content hr { border: none; border-top: 1px solid #E5E8EE; margin: 32px 0; }
   .article-content blockquote { border-left: 4px solid #E8A020; margin: 24px 0; padding: 12px 20px; background: #FBF2DF; border-radius: 0 12px 12px 0; font-style: italic; color: #4A5560; }
-  .article-content table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 15px; }
+  .article-content table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 15px; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .article-content p, .article-content li { overflow-wrap: anywhere; }
+  .article-content { min-width: 0; }
   .article-content th { background: #16202E; color: #fff; padding: 12px 16px; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; }
   .article-content td { padding: 12px 16px; border-bottom: 1px solid #E5E8EE; color: #4A5560; }
   .article-content tr:last-child td { border-bottom: none; }
